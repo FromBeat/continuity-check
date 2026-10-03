@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Continuity check</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    margin: 0 auto;
+    max-width: 38rem;
+    padding: 2rem 1.25rem 3rem;
+    font: 18px/1.45 Georgia, "Iowan Old Style", serif;
+    color: #1c1915;
+    background: #f6f1e8;
+  }
+  h1 { font-size: 1.7rem; font-weight: normal; margin: 0 0 0.4rem; }
+  h2 { font-size: 1.05rem; font-weight: normal; margin: 1.4rem 0 0.4rem; }
+  p, li { margin: 0.3rem 0; }
+  .note { color: #5c5348; font-size: 0.95rem; }
+  form { margin-top: 1.2rem; }
+  label { display: block; margin: 0.8rem 0 0.25rem; }
+  input {
+    box-sizing: border-box;
+    width: 100%;
+    font: 0.95rem/1.3 ui-monospace, "Cascadia Code", monospace;
+    padding: 0.45rem 0.5rem;
+    border: 1px solid #c9bfb0;
+    background: #fffdf8;
+    color: inherit;
+  }
+  button {
+    margin-top: 0.9rem;
+    font: inherit;
+    padding: 0.35rem 0.9rem;
+    background: #1c1915;
+    color: #f6f1e8;
+    border: 0;
+    cursor: pointer;
+  }
+  button:disabled { opacity: 0.55; cursor: wait; }
+  .error { color: #8a2b1a; }
+  ul { padding-left: 1.2rem; }
+  .card {
+    margin: 0.6rem 0 1rem;
+    padding: 0.6rem 0.8rem;
+    background: #fffdf8;
+    border: 1px solid #e2d8c8;
+  }
+  .card h3 {
+    margin: 0 0 0.35rem;
+    font: 0.9rem/1.2 ui-monospace, monospace;
+  }
+  .card p { margin: 0; font: 0.9rem/1.35 ui-monospace, monospace; white-space: pre-wrap; }
+  #out:empty { display: none; }
+</style>
+</head>
+<body>
+  <h1>Continuity check</h1>
+  <p>Looks for the expected notes in one folder on this computer, then shows which are here, which are missing, and a short wake-up card.</p>
+  <p class="note">Nothing is uploaded. The page only talks to the server on this same computer. Paste a full path, such as the folder you cloned plus <code>examples/sample-shelf</code> or <code>examples/sample-shelf-full</code>.</p>
+
+  <form id="form">
+    <label for="folder">Folder path</label>
+    <input id="folder" name="folder" autocomplete="off" required placeholder="/full/path/to/continuity-check/examples/sample-shelf">
+    <label for="config">Config JSON, optional</label>
+    <input id="config" name="config" autocomplete="off" placeholder="/full/path/to/continuity-check/examples/config.json">
+    <button type="submit" id="go">Check this folder</button>
+  </form>
+
+  <div id="out" role="status"></div>
+
+  <h2>Pieces</h2>
+  <ul>
+    <li><code>check.py</code> knows the filenames, the exit codes, and how to clip the wake-up card.</li>
+    <li><code>serve.py</code> is a small local server. It calls those functions. It does not have its own copy of the rules.</li>
+    <li>This page is <code>page.html</code>. The button sends the two paths you typed.</li>
+    <li>A config file, when you give one, is JSON like <code>{"files": ["IDENTITY.md", ...]}</code>. Leave it blank to use the five default names.</li>
+  </ul>
+
+<script>
+(function () {
+  var form = document.getElementById("form");
+  var out = document.getElementById("out");
+  var button = document.getElementById("go");
+
+  function add(tag, text, parent) {
+    var el = document.createElement(tag);
+    el.textContent = text;
+    (parent || out).appendChild(el);
+    return el;
+  }
+
+  function show(data) {
+    out.replaceChildren();
+    if (data.error) {
+      add("p", data.error).className = "error";
+      return;
+    }
+    add("h2", data.code === 0 ? "All expected files are present." : "Some expected files are missing.");
+    add("p", "Folder: " + data.folder).className = "note";
+
+    add("h2", "Present");
+    if (!data.present.length) {
+      add("p", "None.");
+    } else {
+      var present = document.createElement("ul");
+      data.present.forEach(function (file) { add("li", file.name, present); });
+      out.appendChild(present);
+    }
+
+    add("h2", "Missing");
+    if (!data.missing.length) {
+      add("p", "None.");
+    } else {
+      var missing = document.createElement("ul");
+      data.missing.forEach(function (name) { add("li", name, missing); });
+      out.appendChild(missing);
+    }
+
+    add("h2", "Wake-up card");
+    if (!data.present.length) {
+      add("p", "No files to show.");
+      return;
+    }
+    data.present.forEach(function (file) {
+      var card = document.createElement("section");
+      card.className = "card";
+      add("h3", file.name, card);
+      add("p", (file.lines || []).join("\n"), card);
+      out.appendChild(card);
+    });
+  }
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var folder = document.getElementById("folder").value.trim();
+    var config = document.getElementById("config").value.trim();
+    button.disabled = true;
+    out.replaceChildren();
+    add("p", "Checking…").className = "note";
+    fetch("/check", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({folder: folder, config: config || null})
+    }).then(function (response) {
+      return response.json().then(function (data) {
+        if (!data || typeof data !== "object") {
+          show({error: "The server sent something this page did not understand."});
+          return;
+        }
+        show(data);
+      });
+    }).catch(function () {
+      show({error: "Could not reach the local server."});
+    }).then(function () {
+      button.disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

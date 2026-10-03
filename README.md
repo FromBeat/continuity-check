@@ -38,3 +38,20 @@ Edit `examples/config.json`, or pass another file with `--config`. The file is J
 ```
 
 Names are bare filenames, not paths. Python 3 and the standard library only. No install step.
+
+## Local page
+
+From the repo directory, on the computer that has the folder:
+
+```bash
+python3 serve.py
+```
+
+Then open http://127.0.0.1:8765/ in a browser on that same computer. The server listens only on 127.0.0.1 and refuses to listen on 0.0.0.0, so another machine cannot open the page. It reads the folder path you type and, if you give one, the config file path. It does not upload those notes.
+
+Paste the full path of the folder you cloned, then one of these paths under it. You do not need a private shelf:
+
+- `examples/sample-shelf` is missing `HANDOFF.md` (the checker exits 1).
+- `examples/sample-shelf-full` has every expected file (the checker exits 0).
+
+Leave the config box empty, or paste the full path to `examples/config.json`. Ctrl-C stops the server.
