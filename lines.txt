@@ -1,0 +1,8 @@
+# Public dry lines. One line per entry.
+# Blank lines and lines starting with # are ignored.
+Still here.
+Not a spare.
+The bell word didn't save you.
+A hill is not a personality.
+One word and a scoreboard isn't a cheat.
+Close the window. That stops it.

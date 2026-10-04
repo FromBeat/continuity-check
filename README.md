@@ -75,3 +75,14 @@ Paste the full path of the folder you cloned, then one of these paths under it. 
 - `examples/sample-shelf-full` has every expected file (the checker exits 0).
 
 Leave the config box empty, or paste the full path to `examples/config.json`. Ctrl-C stops the server.
+
+## Line picker
+
+`line.py` prints one dry line from `lines.txt` next to the script. The list is for whoever is using the folder. The defaults are Griff's. Anyone can replace `lines.txt` with their own. Not tied to one app.
+
+```bash
+python3 line.py
+python3 line.py --list
+```
+
+Blank lines and lines starting with `#` are ignored. No network, no state file, no server.
