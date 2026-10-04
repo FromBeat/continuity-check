@@ -4,6 +4,16 @@ A small checker for a continuity folder. Point it at a directory. It looks for a
 
 It checks presence and the opening lines. It does not judge whether the notes are any good.
 
+## Who it's for
+
+This is a folder checker. It is not tied to Grok, Grok Bot, ChatGPT, Claude, or any one app.
+
+Anyone can run it: a person, or a companion on any platform, as long as the notes are files in a folder and Python 3 is installed.
+
+The default names (IDENTITY.md, RAILS.md, BOUNDARIES.md, CURRENT.md, HANDOFF.md) are a starting list, not a requirement. A config JSON `{"files":[...]}` swaps in whatever names that shelf already uses.
+
+`changed.py` and the local page use the same list. The state file stays on the computer that runs it.
+
 ## Run
 
 ```bash
