@@ -133,7 +133,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header(
             "Content-Security-Policy",
             "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; "
-            "form-action 'self'; base-uri 'none'",
+            "connect-src 'self'; form-action 'self'; base-uri 'none'",
         )
         self.end_headers()
         self.wfile.write(body)
