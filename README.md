@@ -21,6 +21,16 @@ python3 check.py path/to/folder
 
 Exit codes: `0` if every expected file is present, `1` if any are missing, `2` if the folder or config cannot be used.
 
+## What changed
+
+After a first look, `changed.py` remembers presence and wake-up lines in a small state file next to the script on this computer. Later runs print only what changed (newly present, newly missing, or different wake-up lines). The state file is gitignored and is never stored inside the shelf you point at.
+
+```bash
+python3 changed.py path/to/folder
+```
+
+Same `--config` flag as `check.py`. Exit `0` on the first look or when nothing changed, `1` when something changed, `2` if the folder or config cannot be used.
+
 ## Change the filename list
 
 Edit `examples/config.json`, or pass another file with `--config`. The file is JSON (also valid as a tiny YAML document) shaped like this:
