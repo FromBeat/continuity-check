@@ -4,6 +4,10 @@ A small checker for a continuity folder. Point it at a directory. It looks for a
 
 It checks presence and the opening lines. It does not judge whether the notes are any good.
 
+## Blank shelf
+
+`examples/blank-shelf` has the five default names already, each with one replace-this line and nothing else. Copy the folder, then write your own notes over those lines. It is a shape, not an example life. `check.py` should find every file and exit 0.
+
 ## Who it's for
 
 This is a folder checker. It is not tied to Grok, Grok Bot, ChatGPT, Claude, or any one app.
